@@ -104,7 +104,7 @@ for ($k=0;$k<$usrcnt;$k++){
 	$usracs[$usrarr[$k]->id]=$usrarr[$k]->isPrivate;
 }
 //start html
-print "<!DOCTYPE html><html><head><title>frf: ".htmlspecialchars($name)." / offset ".htmlspecialchars($offset)."</title></head><body bgcolor=\"#FFFFFF\">";
+print "<!DOCTYPE html><html><head><title>frf: ".$name." / offset ".$offset."</title></head><body bgcolor=\"#FFFFFF\">";
 
 	$attindex=array();
     $cattacharr = array();
@@ -126,28 +126,28 @@ for ($i=0;$i<$postcnt;$i++){
         if ($ps_cnt>1) print "+";
         for ($j=0;$j<$ps_cnt;$j++) {
          $xz=$postarr[$i]->postedTo[$j];
-         if (isset($groups[$xz])) print htmlspecialchars($groups[$xz]).":";
+         if (isset($groups[$xz])) print $groups[$xz].":";
         }
         print "</b>";
 
         // post author
         $ausr=$usridx[$postarr[$i]->createdBy];
 
-	print "<b>".htmlspecialchars($ausr)."</b><br>";
+	print "<b>".$ausr."</b><br>";
 	//post body
 	print htmlspecialchars($postarr[$i]->body); print "<br>";
 	$time=$postarr[$i]->createdAt;
 	$time_html=date("d.m.y H:i",($time+0)/1000)."\n";
-	print "<a href=\"/".htmlspecialchars($name."/".$postarr[$i]->id)."\">".htmlspecialchars($time_html)."</a><br>";
+	print "<a href=\"/".$name."/".$postarr[$i]->id."\">".$time_html."</a><br>";
 //	print $postarr[$i]->omittedComments."<br>";
 	//likes
 	$likearr=$postarr[$i]->likes;
 	$likecnt=sizeof($likearr);
 	if ($likecnt!=0) print "Likes: ";
 	for ($z=0;$z<$likecnt;$z++) {
-		print htmlspecialchars($usridx[$likearr[$z]]).", ";
+		print $usridx[$likearr[$z]].", ";
 	}
-	if ($postarr[$i]->omittedLikes!="0") print "... [".htmlspecialchars($postarr[$i]->omittedLikes)."]";
+	if ($postarr[$i]->omittedLikes!="0") print "... [".$postarr[$i]->omittedLikes."]";
 	if ($likecnt!=0) print "<br>";
 	//attachments
            $attach_html='';
@@ -158,8 +158,8 @@ for ($i=0;$i<$postcnt;$i++){
            if ($attachasize!=0){
              for ($ai=0;$ai<$attachasize;$ai++){
               $citm=$cattacharr[$attindex[$attacharr[$ai]]];
-              if ($citm->mediaType!="image") $attach_html.="<a href=\"".htmlspecialchars($citm->url)."\">".htmlspecialchars($citm->fileName)."</a><br>\n";
-              else $attach_html.="<img src=\"".htmlspecialchars($citm->thumbnailUrl)."\"><br>\n";
+              if ($citm->mediaType!="image") $attach_html.="<a href=\"".$citm->url."\">".$citm->fileName."</a><br>\n";
+              else $attach_html.="<img src=\"".$citm->thumbnailUrl."\"><br>\n";
              }
            }
            print $attach_html;
@@ -174,19 +174,19 @@ for ($i=0;$i<$postcnt;$i++){
 		$cx=$commidx[$cid];
 //		print $cid.":".$cx.":";
 		print htmlspecialchars($commarr[$cx]->body);
-		print " - <i>".htmlspecialchars($usridx[$commarr[$cx]->createdBy])."</i>";
+		print " - <i>".$usridx[$commarr[$cx]->createdBy]."</i>";
 		print "</li>";
-		if (($j==0)&&($cmtdiv!="0")) print " ...[ ".htmlspecialchars($cmtdiv)." ]...<br>";
+		if (($j==0)&&($cmtdiv!="0")) print " ...[ ".$cmtdiv." ]...<br>";
 //		print $commarr[$commidx[$commlist[$j]]]->id;
 	}
 	if ($commcnt>0) print "</ul>\n";
 	print "<hr><p>";
 }
 $gentime=number_format (rticktime() - $starttime, 3);
-if ($offset>29) print "<a href=/".htmlspecialchars($name)."/offset/".($offset-30).">Prev</a> | ";
-print "<a href=/".htmlspecialchars($name)."/offset/".($offset+30).">Next</a> | ";
+if ($offset>29) print "<a href=/".$name."/offset/".($offset-30).">Prev</a> | ";
+print "<a href=/".$name."/offset/".($offset+30).">Next</a> | ";
 
-print "<p>\n".htmlspecialchars($tmtime."/".$gentime);
+print "<p>\n".$tmtime."/".$gentime;
 print "</body></html>";
 }
 
@@ -215,21 +215,21 @@ function tohtml($id) {
    }
    // end make groups list
    //body
-   if (!isset($y->posts->body)) print "html warn: ".htmlspecialchars($id)."\n";
+   if (!isset($y->posts->body)) print "html warn: ".$id."\n";
    $text=$y->posts->body;
    //preg_match('/^(.*){1,10}/U',$text,$result1)
    mb_internal_encoding("UTF-8");
    $title=mb_substr($text,0,50);
    //time
    $time=$y->posts->createdAt;
-   $time_html=htmlspecialchars(date("d.m.y H:i",($time+0)/1000))."\n";
+   $time_html=date("d.m.y H:i",($time+0)/1000)."\n";
    // check groups
    $ghtml="<b>";
    $ps_cnt=sizeof($y->posts->postedTo);
    if ($ps_cnt>1) $ghtml.= "+";
    for ($j=0;$j<$ps_cnt;$j++) {
          $xz=$y->posts->postedTo[$j];
-         if (isset($groups[$xz])) $ghtml.= htmlspecialchars($groups[$xz]).":";
+         if (isset($groups[$xz])) $ghtml.= $groups[$xz].":";
    }
    $ghtml.="</b>";
 
@@ -246,7 +246,7 @@ function tohtml($id) {
    //author
    $auser=$y->posts->createdBy;
    $mmname=$users[$auser];
-   $auname=htmlspecialchars($ghtml)."<b>".htmlspecialchars($mmname)."</b>";
+   $auname=$ghtml."<b>".$mmname."</b>";
    $time_html=$auname.' / '.$time_html;
    //likes
    $likes_html='';
@@ -255,7 +255,7 @@ function tohtml($id) {
    $likesasize=sizeof($likesarr);
    if ($likesasize!=0){
      for ($i=0;$i<$likesasize;$i++){
-      $likes_html.=htmlspecialchars($users[$likesarr[$i]]).", ";
+      $likes_html.=$users[$likesarr[$i]].", ";
      }
      $likes_html="<p>Likes: ".$likes_html."</p>\n";
    }
@@ -266,8 +266,8 @@ function tohtml($id) {
    $attachasize=sizeof($attacharr);
    if ($attachasize!=0){
      for ($i=0;$i<$attachasize;$i++){
-      if ($attacharr[$i]->mediaType!="image") $attach_html.="<a href=\"".htmlspecialchars($attacharr[$i]->url)."\">".htmlspecialchars($attacharr[$i]->fileName)."</a><br>\n";
-      else $attach_html.="<img src=\"".htmlspecialchars($attacharr[$i]->thumbnailUrl)."\"><br>\n";
+      if ($attacharr[$i]->mediaType!="image") $attach_html.="<a href=\"".$attacharr[$i]->url."\">".$attacharr[$i]->fileName."</a><br>\n";
+      else $attach_html.="<img src=\"".$attacharr[$i]->thumbnailUrl."\"><br>\n";
      }
    }
    //comments
@@ -281,19 +281,23 @@ function tohtml($id) {
      for ($i=0;$i<$commasize;$i++){
       $zbody=htmlspecialchars($y->comments[$i]->body);
       $zuser=$y->comments[$i]->createdBy;
-      $comm_html.= "<li>".$zbody." - <i>".htmlspecialchars($users[$zuser])."</i>\n";
+      $comm_html.= "<li>".$zbody." - <i>".$users[$zuser]."</i>\n";
      }
      $comm_html.='</ul>';
    }
 
    $gentime=number_format (rticktime() - $starttime, 3);
-   $origin="<a href=\"https://freefeed.net/".htmlspecialchars($mmname."/".$id)."\">Original record</a>";
+   $origin="<a href=\"https://freefeed.net/".$mmname."/".$id."\">Original record</a>";
 
-   $hhead="<!DOCTYPE html><html><head><title>frf: ".htmlspecialchars($title)." (".htmlspecialchars($id).")</title></head><body bgcolor=\"#FFFFFF\">";
-   $htail="<p>\n".htmlspecialchars($tmtime."/".$gentime)."</body></html>";
+   $hhead="<!DOCTYPE html><html><head><title>frf: ".htmlspecialchars($title)." (".$id.")</title></head><body bgcolor=\"#FFFFFF\">";
+   $htail="<p>\n".$tmtime."/".$gentime."</body></html>";
    $hout="<p>".htmlspecialchars($text)."<br>$time_html</p><p>$attach_html</p>$likes_html<p>$comm_html</p><p>$origin</p>";
 //   print $hout;
    return $hhead.$hout.$htail;
+}
+
+function errout($str) {
+   print ($str); exit;
 }
 
 // main
@@ -305,7 +309,7 @@ $urls = explode ( "/", $eurls );
 $urlcnt=sizeof($urls);
 if (($urlcnt<2)||($urls[1]=="")) { //no feed name
   $whitelist=file("whitelist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-  print "<p>Usage: http://".htmlspecialchars($_SERVER["SERVER_NAME"])."/username</p>";
+  print "<p>Usage: http://".$_SERVER["SERVER_NAME"]."/username</p>";
 //  print_r($whitelist);
   foreach ($whitelist as $value) {
     print "<a href=/".htmlspecialchars($value).">".htmlspecialchars($value)."</a><br>";
@@ -315,15 +319,17 @@ if (($urlcnt<2)||($urls[1]=="")) { //no feed name
 $blacklist=file("blacklist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 //print_r($blacklist);
 $name=$urls[1];
-if (in_array($name, $blacklist)) {
-  print "Sorry, this feed unavailable";
-  exit;
-}
+if (!preg_match('|^[a-z0-9]+$|',$name)) errout("Incorrect offset or username");
+if (in_array($name, $blacklist)) outerr("Sorry, this feed unavailable");
 $offset=0; $id="";
 if ($urlcnt==4) {
-   if ($urls[2]=="offset") $offset=intval($urls[3]);
+   if ($urls[2]=="offset") {
+     if (!preg_match('|^[0-9]+$|',$urls[3])) errout("Incorrect offset or username");
+     $offset=intval($urls[3]);
+   }
 }
 elseif ($urlcnt==3) { $id=$urls[2];
+      if (!preg_match('|^[a-z\-0-9]+$|',$id)) errout("Incorrect offset or username");
 //       $xx=getpost($id);
 //       print_r ($xx);
        print tohtml($id);
@@ -331,3 +337,5 @@ elseif ($urlcnt==3) { $id=$urls[2];
 else { // ?
 }
 if ($id=="") showtimeline($offset,$name);
+
+?>
