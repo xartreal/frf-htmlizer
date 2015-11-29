@@ -319,7 +319,7 @@ if (($urlcnt<2)||($urls[1]=="")) { //no feed name
 $blacklist=file("blacklist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 //print_r($blacklist);
 $name=$urls[1];
-if (!preg_match('|^[a-z0-9]+$|',$name)) errout("Incorrect offset or username");
+if (!preg_match('|^[a-z\-0-9]+$|',$name)) errout("Incorrect offset or username");
 if (in_array($name, $blacklist)) outerr("Sorry, this feed unavailable");
 $offset=0; $id="";
 if ($urlcnt==4) {
@@ -329,7 +329,7 @@ if ($urlcnt==4) {
    }
 }
 elseif ($urlcnt==3) { $id=$urls[2];
-      if (!preg_match('|^[a-z\-0-9]+$|',$id)) errout("Incorrect offset or username");
+      if (!preg_match('|^[a-f\-0-9]+$|',$id)) errout("Incorrect offset or username");
 //       $xx=getpost($id);
 //       print_r ($xx);
        print tohtml($id);
