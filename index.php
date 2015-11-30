@@ -1,5 +1,8 @@
 <?php
 
+// если $blacklistall true, то все, не указанные в whitelist, заносятся в blacklist
+$blacklistall=false;
+
 function timeline ($offset,$name) {
     $sock = fsockopen("ssl://freefeed.net", 443, $errno, $errstr, 30);
     if (!$sock) die("$errstr ($errno)\n");
@@ -224,14 +227,15 @@ function tohtml($id) {
    $time=$y->posts->createdAt;
    $time_html=htmlspecialchars(date("d.m.y H:i",($time+0)/1000))."\n";
    // check groups
-   $ghtml="<b>";
+//   $ghtml="<b>";
+   $ghtml="";
    $ps_cnt=sizeof($y->posts->postedTo);
    if ($ps_cnt>1) $ghtml.= "+";
    for ($j=0;$j<$ps_cnt;$j++) {
          $xz=$y->posts->postedTo[$j];
          if (isset($groups[$xz])) $ghtml.= htmlspecialchars($groups[$xz]).":";
    }
-   $ghtml.="</b>";
+//   $ghtml.="</b>";
 
    // users
    $usersarr=$y->users; $userasize=sizeof($usersarr);
@@ -246,7 +250,7 @@ function tohtml($id) {
    //author
    $auser=$y->posts->createdBy;
    $mmname=$users[$auser];
-   $auname=htmlspecialchars($ghtml)."<b>".htmlspecialchars($mmname)."</b>";
+   $auname="<b>".htmlspecialchars($ghtml).htmlspecialchars($mmname)."</b>";
    $time_html=$auname.' / '.$time_html;
    //likes
    $likes_html='';
@@ -296,6 +300,10 @@ function tohtml($id) {
    return $hhead.$hout.$htail;
 }
 
+function errout($str) {
+   print ($str); exit;
+}
+
 // main
 
 $eurls=$_SERVER["REQUEST_URI"];
@@ -303,8 +311,8 @@ $eurls=$_SERVER["REQUEST_URI"];
 $urls = explode ( "/", $eurls );
 //print_r($urls);
 $urlcnt=sizeof($urls);
+$whitelist=file("whitelist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 if (($urlcnt<2)||($urls[1]=="")) { //no feed name
-  $whitelist=file("whitelist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   print "<p>Usage: http://".htmlspecialchars($_SERVER["SERVER_NAME"])."/username</p>";
 //  print_r($whitelist);
   foreach ($whitelist as $value) {
@@ -315,19 +323,24 @@ if (($urlcnt<2)||($urls[1]=="")) { //no feed name
 $blacklist=file("blacklist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 //print_r($blacklist);
 $name=$urls[1];
-if (in_array($name, $blacklist)) {
-  print "Sorry, this feed unavailable";
-  exit;
-}
+if (!preg_match('|^[a-z\-0-9]+$|',$name)) errout("Incorrect offset or username");
+if ($blacklistall && (!in_array($name, $whitelist))) errout("Sorry, this feed unavailable");
+if (in_array($name, $blacklist)) errout("Sorry, this feed unavailable");
 $offset=0; $id="";
 if ($urlcnt==4) {
-   if ($urls[2]=="offset") $offset=intval($urls[3]);
+   if ($urls[2]=="offset") {
+     if (!preg_match('|^[0-9]+$|',$urls[3])) errout("Incorrect offset or username");
+     $offset=intval($urls[3]);
+   }
+
 }
 elseif ($urlcnt==3) { $id=$urls[2];
-//       $xx=getpost($id);
+      if (!preg_match('|^[a-f\-0-9]+$|',$id)) errout("Incorrect offset or username");
 //       print_r ($xx);
        print tohtml($id);
 }
 else { // ?
 }
 if ($id=="") showtimeline($offset,$name);
+
+?>
