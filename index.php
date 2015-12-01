@@ -1,5 +1,8 @@
 <?php
 
+// если $blacklistall true, то все, не указанные в whitelist, заносятся в blacklist
+$blacklistall=false;
+
 function timeline ($offset,$name) {
     $sock = fsockopen("ssl://freefeed.net", 443, $errno, $errstr, 30);
     if (!$sock) die("$errstr ($errno)\n");
@@ -307,8 +310,8 @@ $eurls=$_SERVER["REQUEST_URI"];
 $urls = explode ( "/", $eurls );
 //print_r($urls);
 $urlcnt=sizeof($urls);
+$whitelist=file("whitelist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 if (($urlcnt<2)||($urls[1]=="")) { //no feed name
-  $whitelist=file("whitelist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   print "<p>Usage: http://".$_SERVER["SERVER_NAME"]."/username</p>";
 //  print_r($whitelist);
   foreach ($whitelist as $value) {
@@ -320,6 +323,7 @@ $blacklist=file("blacklist", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 //print_r($blacklist);
 $name=$urls[1];
 if (!preg_match('|^[a-z\-0-9]+$|',$name)) errout("Incorrect offset or username");
+if ($blacklistall && (!in_array($name, $whitelist))) errout("Sorry, this feed unavailable");
 if (in_array($name, $blacklist)) outerr("Sorry, this feed unavailable");
 $offset=0; $id="";
 if ($urlcnt==4) {
